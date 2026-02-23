@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>domcat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            background: #E8E4DC;
+            min-height: 100vh;
+            padding: 0;
+            letter-spacing: 0.02em;
+            color: #3D3426;
+        }
+
+        .header {
+            background: #9B8B6F;
+            color: #F5F1E8;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #8B7D6B;
+        }
+
+        .header h1 {
+            font-size: 14px;
+            font-weight: normal;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        .header-info {
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        .main-container {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+
+        .left-sidebar {
+            width: 300px;
+            background: #C4B5A0;
+            padding: 30px;
+            border-right: 3px solid #8B7D6B;
+        }
+
+        .left-sidebar button,
+        .left-sidebar textarea,
+        .left-sidebar .dropdown,
+        .left-sidebar .input-group,
+        .left-sidebar .stats-grid,
+        .left-sidebar .section {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .left-sidebar button {
+            padding: 12px 16px;
+            margin-right: 0;
+        }
+
+        .content-area {
+            flex: 1;
+            background: #F5F1E8;
+            padding: 30px;
+        }
+
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: normal;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #8B7D6B;
+            color: #3D3426;
+        }
+
+        .section-title::before {
+            content: "*";
+            margin-right: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #8B7D6B;
+            background: #F5F1E8;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            resize: vertical;
+            transition: background 0.3s;
+            border-radius: 8px;
+            color: #3D3426;
+        }
+
+        textarea:focus {
+            outline: none;
+            background: #FFFEF9;
+            border-color: #9B8B6F;
+        }
+
+        button {
+            background: #9B8B6F;
+            color: #F5F1E8;
+            border: 2px solid #8B7D6B;
+            padding: 12px 24px;
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-top: 15px;
+            font-weight: 500;
+            border-radius: 8px;
+        }
+
+        button:hover {
+            background: #B8A882;
+            color: #3D3426;
+            border-color: #9B8B6F;
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .primary-btn {
+            background: #D4C4A8;
+            color: #3D3426;
+            border-color: #B8A882;
+        }
+
+        .primary-btn:hover {
+            background: #9B8B6F;
+            color: #F5F1E8;
+            border-color: #8B7D6B;
+        }
+
+        .danger-btn {
+            background: #F5F1E8;
+            color: #8B4513;
+            border-color: #A0522D;
+        }
+
+        .danger-btn:hover {
+            background: #D2691E;
+            color: #F5F1E8;
+            border-color: #8B4513;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #8B7D6B;
+            background: #F5F1E8;
+            font-size: 14px;
+            letter-spacing: 0.05em;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            border-radius: 8px;
+            color: #3D3426;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            background: #FFFEF9;
+            border-color: #9B8B6F;
+            transform: translateX(2px);
+        }
+
+        .control-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .toggle-option {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            background: #F5F1E8;
+            border: 2px solid #8B7D6B;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            user-select: none;
+            border-radius: 8px;
+            color: #3D3426;
+        }
+
+        .toggle-option:hover {
+            background: #E8E4DC;
+        }
+
+        .toggle-option.active {
+            background: #9B8B6F;
+            color: #F5F1E8;
+            border-color: #8B7D6B;
+        }
+
+        .toggle-option input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #9B8B6F;
+        }
+
+        .domain-viewport {
+            height: 600px;
+            overflow-y: auto;
+            border: 2px solid #8B7D6B;
+            background: #F5F1E8;
+            position: relative;
+            border-radius: 8px;
+        }
+
+        .domain-list-content {
+            padding: 20px;
+        }
+
+        .domain-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #FFFEF9;
+            border: 1px solid #8B7D6B;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+            cursor: default;
+            border-radius: 6px;
+        }
+
+        .domain-item:hover {
+            background: #F5F1E8;
+            transform: translateX(3px);
+            box-shadow: 3px 3px 0 #8B7D6B;
+        }
+
+        .domain-item.categorised {
+            background: #E8E4DC;
+        }
+
+        .domain-item.categorised:hover {
+            background: #F5F1E8;
+        }
+
+        .domain-check {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .domain-name {
+            font-size: 14px;
+            letter-spacing: 0.02em;
+            color: #3D3426;
+            font-family: 'Courier New', monospace;
+        }
+
+        .domain-link {
+            text-decoration: none;
+            color: #3D3426;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .domain-link:hover {
+            text-decoration: underline;
+            color: #6B5D4F;
+        }
+
+        .category-tag {
+            background: #D4C4A8;
+            color: #3D3426;
+            padding: 4px 12px;
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-weight: 500;
+            border: 1px solid #8B7D6B;
+            border-radius: 4px;
+        }
+
+        .dropdown {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #8B7D6B;
+            background: #F5F1E8;
+            font-size: 12px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 8px;
+            color: #3D3426;
+        }
+
+        .dropdown:focus {
+            outline: none;
+            background: #FFFEF9;
+            border-color: #9B8B6F;
+        }
+
+        .dropdown option:disabled {
+            color: #9B8B6F;
+            font-weight: normal;
+        }
+
+        .dropdown.filter-dropdown {
+            display: none !important;
+            margin-bottom: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .dropdown.filter-dropdown.show {
+            display: block !important;
+        }
+
+        .dropdown.filter-dropdown.active {
+            background: #D4C4A8;
+            border-color: #9B8B6F;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: #9B8B6F;
+            color: #F5F1E8;
+            padding: 15px 10px;
+            text-align: center;
+            border: 2px solid #8B7D6B;
+            border-radius: 8px;
+            min-width: 0;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            letter-spacing: -0.02em;
+        }
+
+        .stat-label {
+            font-size: 9px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            opacity: 0.7;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .selected-indicator {
+            background: #D4C4A8;
+            border: 2px solid #8B7D6B;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            display: none;
+            border-radius: 8px;
+            color: #3D3426;
+        }
+
+        .selected-indicator.show {
+            display: block;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            font-size: 11px;
+            border: 2px solid #8B7D6B;
+            background: #F5F1E8;
+            color: #3D3426;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: #9B8B6F;
+            color: #F5F1E8;
+            border-color: #8B7D6B;
+        }
+
+        .action-btn.primary {
+            background: #D4C4A8;
+            border-color: #B8A882;
+        }
+
+        .action-btn.primary:hover {
+            background: #9B8B6F;
+            color: #F5F1E8;
+            border-color: #8B7D6B;
+        }
+
+        .loading-msg {
+            display: none;
+            padding: 15px;
+            background: #D4C4A8;
+            border: 2px solid #8B7D6B;
+            margin-top: 15px;
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            animation: pulse 1s infinite;
+            border-radius: 8px;
+            color: #3D3426;
+        }
+
+        .loading-msg.show {
+            display: block;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .error-msg {
+            display: none;
+            padding: 15px;
+            background: #EDD5C8;
+            border: 2px solid #A0522D;
+            margin-top: 15px;
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #8B4513;
+            border-radius: 8px;
+        }
+
+        .error-msg.show {
+            display: block;
+        }
+
+        .info-text {
+            text-align: center;
+            padding: 10px;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #9B8B6F;
+            border-top: 1px solid #8B7D6B;
+            margin-top: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            font-size: 12px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #B8A882;
+        }
+
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #9B8B6F;
+            cursor: pointer;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .input-group input[type="text"] {
+            flex: 1;
+            min-width: 0;
+            padding: 12px;
+            border: 2px solid #8B7D6B;
+            background: #F5F1E8;
+            font-size: 12px;
+            letter-spacing: 0.05em;
+            border-radius: 8px;
+            color: #3D3426;
+        }
+
+        .input-group input[type="text"]:focus {
+            outline: none;
+            background: #FFFEF9;
+            border-color: #9B8B6F;
+        }
+
+        .input-group button {
+            margin-right: 0;
+            margin-top: 0;
+            padding: 12px 16px;
+        }
+
+        /* Custom scrollbar */
+        .domain-viewport::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        .domain-viewport::-webkit-scrollbar-track {
+            background: #F5F1E8;
+            border-left: 2px solid #8B7D6B;
+        }
+
+        .domain-viewport::-webkit-scrollbar-thumb {
+            background: #8B7D6B;
+        }
+
+        .domain-viewport::-webkit-scrollbar-thumb:hover {
+            background: #9B8B6F;
+        }
+
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+            }
+
+            .left-sidebar {
+                width: 100%;
+                border: none;
+                border-bottom: 3px solid #8B7D6B;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>domcat</h1>
+    </div>
+
+    <div class="main-container">
+        <div class="left-sidebar">
+            <div class="section">
+                <h2 class="section-title">Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-value" id="totalCount">0</div>
+                        <div class="stat-label">Uncategorised</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="categorisedCount">0</div>
+                        <div class="stat-label">Categorised</div>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; padding: 10px; background: #f5f5f0; border: 1px solid #000;">
+                    <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #666; margin-bottom: 5px;">Total Domains</div>
+                    <div style="font-size: 18px; font-weight: bold;" id="grandTotal">0</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Import Data</h2>
+                <textarea id="csvInput" rows="6"></textarea>
+                <button class="primary-btn" onclick="importCSV()" id="importBtn">&gt;&gt;&gt;&gt; Import</button>
+                <button onclick="clearAll()">Clear All</button>
+                <div class="loading-msg" id="loadingIndicator">Processing...</div>
+                <div class="error-msg" id="importError">
+                    <span id="importErrorText"></span>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Category Management</h2>
+                <div class="input-group">
+                    <input type="text" id="newCategory" placeholder="NEW CATEGORY">
+                    <button onclick="addCategory()">Add</button>
+                </div>
+                <select class="dropdown" id="categorySelect">
+                    <option value="">Select Category...</option>
+                </select>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Export</h2>
+                <button class="primary-btn" onclick="exportCSV()">&gt;&gt;&gt;&gt; Export CSV</button>
+                <button onclick="copyToClipboard()">Copy to Clipboard</button>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="section">
+                <h2 class="section-title">Domain List</h2>
+                
+                <input type="text" class="search-bar" id="searchInput" placeholder="SEARCH DOMAINS..." oninput="debounceSearch()">
+                
+                <select id="categoryFilter" class="dropdown filter-dropdown" onchange="applyFilters()" title="FILTER DOMAINS BY CATEGORY">
+                    <option value="">All Categories</option>
+                </select>
+
+                <select id="tldFilter" class="dropdown filter-dropdown" onchange="applyFilters()" title="FILTER DOMAINS BY TOP-LEVEL DOMAIN">
+                    <option value="">All TLDs</option>
+                </select>
+                
+                <div style="margin-top: 25px; margin-bottom: 20px; padding: 12px 10px; background: #000; color: #B8A882; text-align: center; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; display: none; border-radius: 8px;" id="filterInfo" class="filter-dropdown">
+                    <span id="filterInfoText">Filtered Results</span>
+                </div>
+
+                <div class="control-row">
+                    <div class="toggle-option" id="ignoreTLDToggle" title="Ignore TLD when searching">
+                        <input type="checkbox" id="ignoreTLD" onchange="toggleIgnoreTLD()">
+                        <label for="ignoreTLD">Ignore TLD</label>
+                    </div>
+                    <div class="toggle-option" id="startsWithToggle" title="Only find domains starting with search term">
+                        <input type="checkbox" id="startsWith" onchange="toggleStartsWith()">
+                        <label for="startsWith">Starts With</label>
+                    </div>
+                    <div class="toggle-option" id="viewToggle" onclick="toggleView()">
+                        <span id="viewToggleText">SHOW: UNCATEGORISED</span>
+                    </div>
+                </div>
+
+                <div class="selected-indicator" id="selectedCount">
+                    <strong>0</strong> Domains Selected
+                </div>
+
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="selectVisible()">Select Visible</button>
+                    <button class="action-btn" onclick="deselectAll()">Deselect All</button>
+                    <button class="action-btn primary" onclick="categoriseSelected()" id="categoriseBtn">Categorise</button>
+                    <button class="action-btn" onclick="selectUncategorised()">Select Uncat.</button>
+                    <button class="action-btn" onclick="selectByCurrentTLD()" title="Select all domains with the currently filtered TLD">Select TLD</button>
+                </div>
+
+                <div class="domain-viewport" id="domainListContainer">
+                    <div class="domain-list-content" id="domainListContent">
+                        <div class="empty-state">No domains loaded<br>Import CSV to begin</div>
+                    </div>
+                </div>
+                <div class="info-text" id="paginationInfo"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let domains = [];
+        let filteredDomains = [];
+        let categories = new Set(['ALDR', 'REL', 'PORN', 'PROV', 'POLR', 'HUMR', 'ENV', 'MILX', 'HATE', 'NEWS', 'XED', 'PUBH', 'GMB', 'ANON', 'DATE', 'GRP', 'LGBT', 'FILE', 'HACK', 'COMT', 'MMED', 'HOST', 'SRCH', 'GAME', 'CULTR', 'ECON', 'GOVT', 'COMM', 'CTRL', 'IGO', 'MISC']);
+        let showAll = false;
+        let selectedDomains = new Set();
+        let searchTimeout;
+        let currentPage = 0;
+        let isLoadingMore = false;
+        let scrollListenerAttached = false;
+        const ITEMS_PER_PAGE = 50;
+        const MAX_VISIBLE_ITEMS = 100;
+        const UNCAT = 'UNCAT';
+        const UNCATEGORISED = '__uncategorised__';
+
+        // Public Suffix List - Common multi-label TLDs
+        // Source: https://publicsuffix.org/list/public_suffix_list.dat
+        const PUBLIC_SUFFIXES = new Set([
+            // Common multi-label country-code TLDs
+            'co.uk', 'org.uk', 'ac.uk', 'gov.uk', 'sch.uk', 'police.uk', 'mod.uk', 'nhs.uk',
+            'com.au', 'net.au', 'org.au', 'edu.au', 'gov.au', 'asn.au', 'id.au',
+            'co.nz', 'net.nz', 'org.nz', 'ac.nz', 'govt.nz', 'geek.nz', 'gen.nz', 'school.nz',
+            'co.za', 'org.za', 'net.za', 'ac.za', 'gov.za', 'web.za',
+            'com.br', 'net.br', 'org.br', 'gov.br', 'edu.br', 'mil.br',
+            'co.in', 'net.in', 'org.in', 'gen.in', 'firm.in', 'ind.in', 'ac.in', 'edu.in', 'gov.in',
+            'co.jp', 'or.jp', 'ne.jp', 'ac.jp', 'go.jp', 'ed.jp', 'lg.jp',
+            'com.cn', 'net.cn', 'org.cn', 'edu.cn', 'gov.cn', 'mil.cn', 'ac.cn',
+            'com.mx', 'org.mx', 'net.mx', 'edu.mx', 'gob.mx',
+            'com.ar', 'org.ar', 'net.ar', 'gov.ar', 'edu.ar', 'mil.ar',
+            'com.co', 'org.co', 'edu.co', 'gov.co', 'net.co', 'mil.co',
+            'co.il', 'org.il', 'net.il', 'ac.il', 'gov.il', 'idf.il',
+            'co.kr', 'or.kr', 'ne.kr', 'ac.kr', 'go.kr', 'pe.kr', 're.kr',
+            'com.tw', 'org.tw', 'net.tw', 'edu.tw', 'gov.tw', 'mil.tw',
+            'com.tr', 'org.tr', 'net.tr', 'edu.tr', 'gov.tr', 'mil.tr', 'web.tr',
+            'co.th', 'or.th', 'ac.th', 'go.th', 'net.th', 'in.th', 'mi.th',
+            'com.sg', 'org.sg', 'net.sg', 'edu.sg', 'gov.sg', 'per.sg',
+            'com.hk', 'org.hk', 'net.hk', 'edu.hk', 'gov.hk', 'idv.hk',
+            'co.id', 'or.id', 'ac.id', 'go.id', 'net.id', 'web.id', 'sch.id',
+            'com.my', 'org.my', 'net.my', 'edu.my', 'gov.my',
+            'com.ph', 'org.ph', 'net.ph', 'edu.ph', 'gov.ph', 'mil.ph',
+            'com.vn', 'org.vn', 'net.vn', 'edu.vn', 'gov.vn', 'int.vn', 'ac.vn',
+            'co.ke', 'or.ke', 'ne.ke', 'go.ke', 'ac.ke', 'sc.ke', 'me.ke',
+            'co.ug', 'or.ug', 'ac.ug', 'go.ug', 'ne.ug', 'sc.ug',
+            'co.tz', 'or.tz', 'ac.tz', 'go.tz', 'ne.tz', 'sc.tz',
+            'com.ng', 'org.ng', 'net.ng', 'edu.ng', 'gov.ng', 'sch.ng',
+            'com.eg', 'org.eg', 'net.eg', 'edu.eg', 'gov.eg', 'sci.eg',
+            'com.pk', 'org.pk', 'net.pk', 'edu.pk', 'gov.pk', 'fam.pk', 'biz.pk', 'web.pk',
+            'com.bd', 'org.bd', 'net.bd', 'edu.bd', 'gov.bd', 'ac.bd',
+            'com.np', 'org.np', 'net.np', 'edu.np', 'gov.np',
+            'com.lk', 'org.lk', 'net.lk', 'edu.lk', 'gov.lk', 'ac.lk',
+            'com.ua', 'org.ua', 'net.ua', 'edu.ua', 'gov.ua',
+            'com.ru', 'org.ru', 'net.ru', 'edu.ru', 'gov.ru', 'mil.ru',
+            'com.pl', 'org.pl', 'net.pl', 'edu.pl', 'gov.pl', 'mil.pl',
+            'co.ve', 'org.ve', 'net.ve', 'edu.ve', 'gov.ve', 'web.ve',
+            'com.pe', 'org.pe', 'net.pe', 'edu.pe', 'gob.pe', 'mil.pe',
+            'com.ec', 'org.ec', 'net.ec', 'edu.ec', 'gov.ec', 'mil.ec',
+            'com.do', 'org.do', 'net.do', 'edu.do', 'gov.do', 'web.do',
+            'com.uy', 'org.uy', 'net.uy', 'edu.uy', 'gub.uy', 'mil.uy',
+            'com.py', 'org.py', 'net.py', 'edu.py', 'gov.py', 'mil.py',
+            'com.bo', 'org.bo', 'net.bo', 'edu.bo', 'gov.bo', 'mil.bo',
+            'co.cr', 'or.cr', 'ac.cr', 'fi.cr', 'go.cr', 'ed.cr', 'sa.cr',
+            'com.sv', 'org.sv', 'edu.sv', 'gob.sv',
+            'com.gt', 'org.gt', 'net.gt', 'edu.gt', 'gob.gt', 'mil.gt',
+            'com.pa', 'org.pa', 'net.pa', 'edu.pa', 'gob.pa',
+            'com.ni', 'org.ni', 'net.ni', 'edu.ni', 'gob.ni',
+            'com.hn', 'org.hn', 'net.hn', 'edu.hn', 'gob.hn', 'mil.hn',
+            'co.at', 'or.at', 'priv.at', 'ac.at',
+            'co.be', 'ac.be',
+            'com.de', 'net.de', 'org.de',
+            'com.fr', 'asso.fr', 'nom.fr', 'presse.fr', 'tm.fr', 'gouv.fr',
+            'com.es', 'org.es', 'nom.es', 'edu.es', 'gob.es',
+            'com.it', 'org.it', 'net.it', 'edu.it', 'gov.it',
+            'co.nl', 'bv.nl',
+            'com.pt', 'org.pt', 'net.pt', 'edu.pt', 'gov.pt',
+            'com.gr', 'org.gr', 'net.gr', 'edu.gr', 'gov.gr',
+            'com.se', 'org.se', 'net.se',
+            'co.dk', 'ac.dk',
+            'co.no', 'priv.no', 'mil.no',
+            'com.fi', 'org.fi', 'net.fi', 'edu.fi',
+            'com.ie', 'org.ie', 'net.ie', 'gov.ie',
+            'co.hu', 'org.hu',
+            'com.cz', 'org.cz',
+            'com.ro', 'org.ro', 'nom.ro', 'nt.ro', 'rec.ro',
+            'com.hr', 'from.hr', 'iz.hr',
+            'co.rs', 'org.rs', 'edu.rs', 'ac.rs', 'gov.rs',
+            'ab.ca', 'bc.ca', 'mb.ca', 'nb.ca', 'nf.ca', 'nl.ca', 'ns.ca', 'nt.ca', 'nu.ca', 'on.ca', 'pe.ca', 'qc.ca', 'sk.ca', 'yk.ca',
+            'ak.us', 'al.us', 'ar.us', 'az.us', 'ca.us', 'co.us', 'ct.us', 'dc.us', 'de.us', 'fl.us', 'ga.us',
+            'hi.us', 'ia.us', 'id.us', 'il.us', 'in.us', 'ks.us', 'ky.us', 'la.us', 'ma.us', 'md.us', 'me.us',
+            'mi.us', 'mn.us', 'mo.us', 'ms.us', 'mt.us', 'nc.us', 'nd.us', 'ne.us', 'nh.us', 'nj.us', 'nm.us',
+            'nv.us', 'ny.us', 'oh.us', 'ok.us', 'or.us', 'pa.us', 'ri.us', 'sc.us', 'sd.us', 'tn.us', 'tx.us',
+            'ut.us', 'va.us', 'vt.us', 'wa.us', 'wi.us', 'wv.us', 'wy.us'
+        ]);
+
+        function initializeCategories() {
+            const select = document.getElementById('categorySelect');
+            select.innerHTML = '<option value="">Select Category...</option>';
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat.toUpperCase();
+                select.appendChild(option);
+            });
+            
+            updateCategoryFilter();
+            updateTLDFilter();
+        }
+
+        function extractTLD(domain) {
+            if (!domain) return '';
+
+            const lowerDomain = domain.toLowerCase();
+            const parts = lowerDomain.split('.');
+
+            if (parts.length < 2) return '';
+
+            // Try to find longest matching suffix from public suffix list
+            // Check 3-label suffix (e.g., .com.au)
+            if (parts.length >= 3) {
+                const threeLabelSuffix = parts.slice(-3).join('.');
+                if (PUBLIC_SUFFIXES.has(threeLabelSuffix)) {
+                    return '.' + threeLabelSuffix;
+                }
+            }
+
+            // Check 2-label suffix (e.g., .co.uk)
+            if (parts.length >= 2) {
+                const twoLabelSuffix = parts.slice(-2).join('.');
+                if (PUBLIC_SUFFIXES.has(twoLabelSuffix)) {
+                    return '.' + twoLabelSuffix;
+                }
+            }
+
+            // Fall back to single-label TLD (e.g., .com)
+            return '.' + parts[parts.length - 1];
+        }
+
+        function updateCategoryFilter() {
+            const filterSelect = document.getElementById('categoryFilter');
+            const currentValue = filterSelect.value;
+            const categoryCounts = {};
+            let uncategorisedCount = 0;
+            let totalCount = domains.length;
+            
+            domains.forEach(d => {
+                if (d.category) {
+                    categoryCounts[d.category] = (categoryCounts[d.category] || 0) + 1;
+                } else {
+                    uncategorisedCount++;
+                }
+            });
+            
+            if (totalCount > 0) {
+                filterSelect.innerHTML = `<option value="">ALL CATEGORIES (${totalCount})</option>`;
+            } else {
+                filterSelect.innerHTML = '<option value="">ALL CATEGORIES</option>';
+            }
+            
+            if (uncategorisedCount > 0) {
+                const uncatOption = document.createElement('option');
+                uncatOption.value = UNCATEGORISED;
+                uncatOption.textContent = `* UNCATEGORISED (${uncategorisedCount})`;
+                uncatOption.style.fontWeight = '600';
+                filterSelect.appendChild(uncatOption);
+                
+                if (Object.keys(categoryCounts).length > 0) {
+                    const separator = document.createElement('option');
+                    separator.disabled = true;
+                    separator.textContent = '──────────';
+                    filterSelect.appendChild(separator);
+                }
+            }
+            
+            Object.keys(categoryCounts).sort().forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = `${cat.toUpperCase()} (${categoryCounts[cat]})`;
+                filterSelect.appendChild(option);
+            });
+            
+            if (currentValue && (categoryCounts[currentValue] || currentValue === UNCATEGORISED)) {
+                filterSelect.value = currentValue;
+            }
+        }
+
+        function updateTLDFilter() {
+            const filterSelect = document.getElementById('tldFilter');
+            const currentValue = filterSelect.value;
+            const tldCounts = {};
+            
+            if (domains.length === 0) {
+                filterSelect.innerHTML = '<option value="">ALL TLDS</option>';
+                return;
+            }
+            
+            domains.forEach(d => {
+                const tld = extractTLD(d.name);
+                if (tld) {
+                    tldCounts[tld] = (tldCounts[tld] || 0) + 1;
+                }
+            });
+            
+            const total = domains.length;
+            filterSelect.innerHTML = `<option value="">ALL TLDS (${total})</option>`;
+            
+            const sortedTLDs = Object.entries(tldCounts)
+                .sort((a, b) => {
+                    if (b[1] !== a[1]) return b[1] - a[1];
+                    return a[0].localeCompare(b[0]);
+                });
+            
+            sortedTLDs.forEach(([tld, count]) => {
+                const option = document.createElement('option');
+                option.value = tld;
+                option.textContent = `${tld.toUpperCase()} (${count})`;
+                filterSelect.appendChild(option);
+            });
+            
+            if (currentValue && tldCounts[currentValue]) {
+                filterSelect.value = currentValue;
+            }
+        }
+
+        function showImportError(message) {
+            const errorEl = document.getElementById('importError');
+            const errorText = document.getElementById('importErrorText');
+            if (errorEl && errorText) {
+                errorText.textContent = message;
+                errorEl.classList.add('show');
+                setTimeout(() => {
+                    errorEl.classList.remove('show');
+                }, 5000);
+            }
+        }
+
+        function hideImportError() {
+            const errorEl = document.getElementById('importError');
+            if (errorEl) {
+                errorEl.classList.remove('show');
+            }
+        }
+
+        function detectLineFormat(line) {
+            if (!line || !line.trim()) return null;
+
+            const trimmed = line.trim();
+
+            if (trimmed.startsWith('"')) {
+                return 'quoted';
+            }
+
+            if (trimmed.includes(',')) {
+                const commaCount = (trimmed.match(/,/g) || []).length;
+                if (commaCount >= 2) {
+                    return 'complex';
+                }
+                return 'simple';
+            }
+
+            return 'domain-only';
+        }
+
+        function addOrUpdateDomain(newDomain) {
+            const existingIndex = domains.findIndex(d => d.name === newDomain.name);
+
+            if (existingIndex === -1) {
+                domains.push(newDomain);
+                return;
+            }
+
+            const existing = domains[existingIndex];
+
+            if (newDomain.category && !existing.category) {
+                domains[existingIndex] = newDomain;
+                return;
+            }
+
+            if (existing.category && !newDomain.category) {
+                return;
+            }
+
+        }
+
+        async function importCSV() {
+            const csvText = document.getElementById('csvInput').value.trim();
+            if (!csvText) {
+                showImportError('PLEASE PASTE CSV DATA FIRST');
+                return;
+            }
+
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const importBtn = document.getElementById('importBtn');
+
+            loadingIndicator.classList.add('show');
+            importBtn.disabled = true;
+            hideImportError();
+
+            domains = [];
+            selectedDomains.clear();
+
+            try {
+                await new Promise(resolve => {
+                    setTimeout(() => {
+                        const lines = csvText.split('\n');
+                        const chunkSize = 1000;
+                        let processedCount = 0;
+                        let complexFormatHeaders = null;
+
+                        function processChunk(startIdx) {
+                            const endIdx = Math.min(startIdx + chunkSize, lines.length);
+
+                            for (let i = startIdx; i < endIdx; i++) {
+                                const line = lines[i].trim();
+                                if (!line) continue;
+
+                                const lineFormat = detectLineFormat(line);
+                                if (!lineFormat) continue;
+
+                                if (i === 0 && lineFormat === 'complex') {
+                                    const lowerLine = line.toLowerCase();
+                                    if (lowerLine.includes('domain') &&
+                                        (lowerLine.includes('act') || lowerLine.includes('airtel') ||
+                                         lowerLine.includes('jio') || lowerLine.includes('tranco'))) {
+                                        complexFormatHeaders = line.split(',').map(h => h.trim());
+                                        continue;
+                                    }
+                                }
+
+                                let domainObj = null;
+
+                                if (lineFormat === 'domain-only') {
+                                    const domain = line;
+                                    if (!domain || domain.toLowerCase() === 'domain') continue;
+
+                                    domainObj = {
+                                        name: domain.toLowerCase(),
+                                        category: null,
+                                        index: processedCount++,
+                                        originalLine: line,
+                                        additionalColumns: null,
+                                        headers: null,
+                                        isNewFormat: true
+                                    };
+                                } else if (lineFormat === 'simple') {
+                                    const parts = line.split(',').map(p => p.trim().replace(/^"|"$/g, ''));
+                                    if (parts.length === 0) continue;
+
+                                    const domain = parts[0];
+                                    const category = parts.length > 1 && parts[1] && parts[1] !== UNCAT && parts[1] !== '' ? parts[1] : null;
+
+                                    if (!domain || domain.toLowerCase() === 'domain') continue;
+
+                                    domainObj = {
+                                        name: domain.toLowerCase(),
+                                        category: category,
+                                        index: processedCount++,
+                                        originalLine: line,
+                                        additionalColumns: null,
+                                        headers: null,
+                                        isNewFormat: true
+                                    };
+
+                                    if (category) {
+                                        categories.add(category);
+                                    }
+                                } else if (lineFormat === 'complex') {
+                                    const parts = line.split(',').map(p => p.trim());
+                                    if (parts.length > 0) {
+                                        const domain = parts[0];
+                                        const category = parts.length > 1 ? parts[1] : null;
+                                        const additionalCols = parts.length > 2 ? parts.slice(2) : [];
+
+                                        if (!domain || domain.toLowerCase() === 'domain') {
+                                            continue;
+                                        }
+
+                                        domainObj = {
+                                            name: domain.toLowerCase(),
+                                            category: category && category !== UNCAT && category !== '' ? category : null,
+                                            index: processedCount++,
+                                            originalLine: line,
+                                            additionalColumns: additionalCols,
+                                            headers: complexFormatHeaders,
+                                            isNewFormat: true
+                                        };
+
+                                        if (category && category !== UNCAT && category !== '') {
+                                            categories.add(category);
+                                        }
+                                    }
+                                } else if (lineFormat === 'quoted') {
+                                    const parts = line.match(/"([^"]+)"/g);
+                                    if (parts && parts.length > 0) {
+                                        const domain = parts[0].replace(/"/g, '');
+                                        const category = parts.length > 1 ? parts[1].replace(/"/g, '') : null;
+
+                                        domainObj = {
+                                            name: domain.toLowerCase(),
+                                            category: category,
+                                            index: processedCount++,
+                                            originalLine: line,
+                                            additionalColumns: null,
+                                            isNewFormat: false
+                                        };
+
+                                        if (category) {
+                                            categories.add(category);
+                                        }
+                                    }
+                                }
+
+                                if (domainObj) {
+                                    addOrUpdateDomain(domainObj);
+                                }
+                            }
+
+                            if (endIdx < lines.length) {
+                                setTimeout(() => processChunk(endIdx), 0);
+                            } else {
+                                if (domains.length === 0) {
+                                    showImportError('NO VALID DOMAINS FOUND IN PASTED DATA');
+                                    loadingIndicator.classList.remove('show');
+                                    importBtn.disabled = false;
+                                    resolve();
+                                } else {
+                                    finishImport();
+                                    resolve();
+                                }
+                            }
+                        }
+
+                        processChunk(0);
+                    }, 10);
+                });
+            } catch (error) {
+                console.error('Import error:', error);
+                showImportError('ERROR IMPORTING CSV DATA: ' + error.message);
+            } finally {
+                loadingIndicator.classList.remove('show');
+                importBtn.disabled = false;
+            }
+        }
+
+        function finishImport() {
+            initializeCategories();
+            updateStats();
+            applyFilters();
+            document.getElementById('csvInput').value = '';
+        }
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const ignoreTLD = document.getElementById('ignoreTLD') ? document.getElementById('ignoreTLD').checked : false;
+            const startsWith = document.getElementById('startsWith') ? document.getElementById('startsWith').checked : false;
+            const categoryFilterElement = document.getElementById('categoryFilter');
+            const tldFilterElement = document.getElementById('tldFilter');
+            const selectedCategory = categoryFilterElement.value;
+            const selectedTLD = tldFilterElement.value;
+            
+            updateSearchPlaceholder();
+            
+            if (selectedCategory) {
+                categoryFilterElement.classList.add('active');
+            } else {
+                categoryFilterElement.classList.remove('active');
+            }
+            
+            if (selectedTLD) {
+                tldFilterElement.classList.add('active');
+            } else {
+                tldFilterElement.classList.remove('active');
+            }
+            
+            filteredDomains = domains.filter(d => {
+                let matchesSearch = true;
+                
+                if (searchTerm) {
+                    let domainToSearch;
+                    
+                    if (ignoreTLD) {
+                        const lastDotIndex = d.name.lastIndexOf('.');
+                        domainToSearch = lastDotIndex > 0 ? d.name.substring(0, lastDotIndex).toLowerCase() : d.name.toLowerCase();
+                    } else {
+                        domainToSearch = d.name.toLowerCase();
+                    }
+                    
+                    if (startsWith) {
+                        matchesSearch = domainToSearch.startsWith(searchTerm) || 
+                                      (d.category && d.category.toLowerCase().startsWith(searchTerm));
+                    } else {
+                        matchesSearch = domainToSearch.includes(searchTerm) || 
+                                      (d.category && d.category.toLowerCase().includes(searchTerm));
+                    }
+                }
+                
+                let matchesCategory = true;
+                if (showAll && selectedCategory) {
+                    if (selectedCategory === UNCATEGORISED) {
+                        matchesCategory = !d.category;
+                    } else {
+                        matchesCategory = d.category === selectedCategory;
+                    }
+                }
+                
+                let matchesTLD = true;
+                if (selectedTLD) {
+                    const domainTLD = extractTLD(d.name);
+                    matchesTLD = domainTLD === selectedTLD;
+                }
+                
+                const matchesViewMode = showAll || !d.category;
+                
+                return matchesSearch && matchesCategory && matchesTLD && matchesViewMode;
+            });
+
+            currentPage = 0;
+            isLoadingMore = false;
+            const scrollContainer = document.getElementById('domainListContainer');
+            if (scrollContainer) {
+                scrollContainer.scrollTop = 0;
+            }
+            
+            renderDomains();
+        }
+
+        function buildDomainItemHTML(domain, originalIndex, isSelected) {
+            return `
+                <div class="domain-item ${domain.category ? 'categorised' : ''}" data-index="${originalIndex}">
+                    <div class="domain-check">
+                        <input type="checkbox"
+                               ${isSelected ? 'checked' : ''}
+                               onchange="toggleSelection(${originalIndex})">
+                        <a href="https://www.google.com/search?q=%22${encodeURIComponent(domain.name)}%22"
+                           target="_blank"
+                           class="domain-name domain-link"
+                           onclick="event.stopPropagation()">${domain.name}</a>
+                    </div>
+                    ${domain.category ? `<span class="category-tag">${domain.category}</span>` : ''}
+                </div>
+            `;
+        }
+
+        function renderDomains() {
+            const container = document.getElementById('domainListContent');
+
+            if (filteredDomains.length === 0) {
+                container.innerHTML = '<div class="empty-state">No domains found</div>';
+                document.getElementById('paginationInfo').textContent = '';
+                return;
+            }
+
+            isLoadingMore = false;
+
+            const startIdx = currentPage * ITEMS_PER_PAGE;
+            const endIdx = Math.min(startIdx + MAX_VISIBLE_ITEMS, filteredDomains.length);
+            const visibleDomains = filteredDomains.slice(startIdx, endIdx);
+            const indexMap = new Map(domains.map((d, i) => [d, i]));
+
+            const html = visibleDomains.map(domain => {
+                const originalIndex = indexMap.get(domain);
+                const isSelected = selectedDomains.has(originalIndex);
+                return buildDomainItemHTML(domain, originalIndex, isSelected);
+            }).join('');
+
+            container.innerHTML = html;
+
+            const scrollContainer = document.getElementById('domainListContainer');
+            if (!scrollListenerAttached) {
+                scrollContainer.addEventListener('scroll', handleScroll);
+                scrollListenerAttached = true;
+            }
+
+            updatePaginationInfo(startIdx + 1, endIdx);
+            updateSelectedCount();
+        }
+
+        function handleScroll() {
+            const container = document.getElementById('domainListContainer');
+            const scrollPercentage = (container.scrollTop + container.clientHeight) / container.scrollHeight;
+            
+            if (!isLoadingMore && 
+                scrollPercentage > 0.8 && 
+                (currentPage + 1) * ITEMS_PER_PAGE < filteredDomains.length) {
+                loadMoreDomains();
+            }
+        }
+
+        function loadMoreDomains() {
+            if (isLoadingMore) return;
+            
+            isLoadingMore = true;
+            currentPage++;
+            
+            const container = document.getElementById('domainListContent');
+            const existingCount = container.querySelectorAll('.domain-item').length;
+            const startIdx = existingCount;
+            const endIdx = Math.min(startIdx + ITEMS_PER_PAGE, filteredDomains.length);
+            const newDomains = filteredDomains.slice(startIdx, endIdx);
+
+            if (newDomains.length === 0) {
+                isLoadingMore = false;
+                return;
+            }
+
+            const indexMap = new Map(domains.map((d, i) => [d, i]));
+            const newHtml = newDomains.map(domain => {
+                const originalIndex = indexMap.get(domain);
+                const isSelected = selectedDomains.has(originalIndex);
+                return buildDomainItemHTML(domain, originalIndex, isSelected);
+            }).join('');
+
+            container.insertAdjacentHTML('beforeend', newHtml);
+            
+            updatePaginationInfo(1, endIdx);
+            
+            setTimeout(() => {
+                isLoadingMore = false;
+            }, 100);
+        }
+
+        function updatePaginationInfo(start, end) {
+            const info = document.getElementById('paginationInfo');
+            const selectedCategory = document.getElementById('categoryFilter').value;
+            const selectedTLD = document.getElementById('tldFilter').value;
+            
+            let infoText = `Showing ${start}-${end} of ${filteredDomains.length}`;
+            
+            let filterDetails = [];
+            
+            if (showAll && selectedCategory) {
+                if (selectedCategory === UNCATEGORISED) {
+                    filterDetails.push('Uncategorised');
+                } else {
+                    filterDetails.push(selectedCategory);
+                }
+            } else if (!showAll) {
+                filterDetails.push('Uncategorised');
+            }
+            
+            if (selectedTLD) {
+                filterDetails.push(selectedTLD.toUpperCase());
+            }
+            
+            if (filterDetails.length > 0) {
+                infoText += ` ${filterDetails.join(' ')} Domains`;
+            } else {
+                infoText += ` Domains`;
+            }
+            
+            info.textContent = infoText.toUpperCase();
+            
+            const filterInfo = document.getElementById('filterInfo');
+            const filterInfoText = document.getElementById('filterInfoText');
+            
+            if (filterInfo && filterInfoText) {
+                if (selectedCategory || selectedTLD || !showAll) {
+                    const uncategorisedCount = filteredDomains.filter(d => !d.category).length;
+                    const categorisedCount = filteredDomains.filter(d => d.category).length;
+                    
+                    filterInfoText.textContent = `Filtered: ${uncategorisedCount} Uncat / ${categorisedCount} Cat`;
+                    filterInfo.style.display = 'block';
+                } else {
+                    filterInfo.style.display = 'none';
+                }
+            }
+        }
+
+        function debounceSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                applyFilters();
+            }, 300);
+        }
+
+        function toggleSelection(index) {
+            if (selectedDomains.has(index)) {
+                selectedDomains.delete(index);
+            } else {
+                selectedDomains.add(index);
+            }
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            const countEl = document.getElementById('selectedCount');
+            const count = selectedDomains.size;
+            countEl.innerHTML = `<strong>${count}</strong> Domains Selected`.toUpperCase();
+            countEl.classList.toggle('show', count > 0);
+        }
+
+        function selectVisible() {
+            const visibleItems = document.querySelectorAll('.domain-item');
+            visibleItems.forEach(item => {
+                const index = parseInt(item.dataset.index);
+                selectedDomains.add(index);
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                if (checkbox) checkbox.checked = true;
+            });
+            updateSelectedCount();
+        }
+
+        function selectUncategorised() {
+            domains.forEach((domain, idx) => {
+                if (!domain.category) {
+                    selectedDomains.add(idx);
+                }
+            });
+            renderDomains();
+            updateSelectedCount();
+        }
+
+        function selectByCurrentTLD() {
+            const selectedTLD = document.getElementById('tldFilter').value;
+            if (!selectedTLD) {
+                alert('PLEASE SELECT A SPECIFIC TLD FIRST');
+                return;
+            }
+            
+            domains.forEach((domain, idx) => {
+                const domainTLD = extractTLD(domain.name);
+                if (domainTLD === selectedTLD) {
+                    selectedDomains.add(idx);
+                }
+            });
+            renderDomains();
+            updateSelectedCount();
+        }
+
+        function deselectAll() {
+            selectedDomains.clear();
+            const checkboxes = document.querySelectorAll('.domain-item input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = false);
+            updateSelectedCount();
+        }
+
+        async function categoriseSelected() {
+            const category = document.getElementById('categorySelect').value;
+            if (!category) {
+                alert('PLEASE SELECT A CATEGORY FIRST');
+                return;
+            }
+
+            if (selectedDomains.size === 0) {
+                alert('PLEASE SELECT DOMAINS TO CATEGORISE');
+                return;
+            }
+
+            const btn = document.getElementById('categoriseBtn');
+            btn.disabled = true;
+            btn.textContent = 'CATEGORIZING...';
+            
+            const selectedArray = Array.from(selectedDomains);
+            const chunkSize = 100;
+            
+            for (let i = 0; i < selectedArray.length; i += chunkSize) {
+                const chunk = selectedArray.slice(i, i + chunkSize);
+                chunk.forEach(idx => {
+                    if (domains[idx]) {
+                        domains[idx].category = category;
+                        if (domains[idx].originalLine && domains[idx].originalLine.includes(UNCAT)) {
+                            domains[idx].originalLine = domains[idx].originalLine.replace(UNCAT, category);
+                        }
+                    }
+                });
+                await new Promise(resolve => setTimeout(resolve, 10));
+            }
+
+            selectedDomains.clear();
+            updateStats();
+            updateCategoryFilter();
+            updateTLDFilter();
+            applyFilters();
+            
+            btn.disabled = false;
+            btn.textContent = 'CATEGORISE';
+        }
+
+        function addCategory() {
+            const newCat = document.getElementById('newCategory').value.trim();
+            if (!newCat) {
+                alert('PLEASE ENTER A CATEGORY NAME');
+                return;
+            }
+
+            categories.add(newCat);
+            initializeCategories();
+            document.getElementById('newCategory').value = '';
+            document.getElementById('categorySelect').value = newCat;
+        }
+
+        function toggleView() {
+            showAll = !showAll;
+            const viewToggle = document.getElementById('viewToggle');
+            const viewText = document.getElementById('viewToggleText');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const tldFilter = document.getElementById('tldFilter');
+            const filterInfo = document.getElementById('filterInfo');
+            
+            if (showAll) {
+                viewToggle.classList.add('active');
+                viewText.textContent = 'SHOW: ALL';
+                updateCategoryFilter();
+                updateTLDFilter();
+                categoryFilter.classList.add('show');
+                tldFilter.classList.add('show');
+                if (filterInfo) filterInfo.classList.add('show');
+            } else {
+                viewToggle.classList.remove('active');
+                viewText.textContent = 'SHOW: UNCATEGORISED';
+                categoryFilter.classList.remove('show');
+                categoryFilter.value = '';
+                categoryFilter.classList.remove('active');
+                tldFilter.classList.remove('show');
+                tldFilter.value = '';
+                tldFilter.classList.remove('active');
+                if (filterInfo) {
+                    filterInfo.classList.remove('show');
+                    filterInfo.style.display = 'none';
+                }
+            }
+            
+            applyFilters();
+        }
+
+        function toggleIgnoreTLD() {
+            const toggle = document.getElementById('ignoreTLDToggle');
+            const checkbox = document.getElementById('ignoreTLD');
+            
+            if (checkbox.checked) {
+                toggle.classList.add('active');
+            } else {
+                toggle.classList.remove('active');
+            }
+            
+            applyFilters();
+        }
+
+        function toggleStartsWith() {
+            const toggle = document.getElementById('startsWithToggle');
+            const checkbox = document.getElementById('startsWith');
+            
+            if (checkbox.checked) {
+                toggle.classList.add('active');
+            } else {
+                toggle.classList.remove('active');
+            }
+            
+            applyFilters();
+        }
+
+        function updateSearchPlaceholder() {
+            const searchInput = document.getElementById('searchInput');
+            const ignoreTLD = document.getElementById('ignoreTLD') ? document.getElementById('ignoreTLD').checked : false;
+            const startsWith = document.getElementById('startsWith') ? document.getElementById('startsWith').checked : false;
+            
+            let placeholder = 'SEARCH DOMAINS';
+            
+            if (ignoreTLD && startsWith) {
+                placeholder = 'SEARCH DOMAINS (STARTS WITH, IGNORING TLD)';
+            } else if (ignoreTLD) {
+                placeholder = 'SEARCH DOMAINS (IGNORING TLD)';
+            } else if (startsWith) {
+                placeholder = 'SEARCH DOMAINS (STARTS WITH)';
+            }
+            
+            searchInput.placeholder = placeholder + '...';
+        }
+
+        function updateStats() {
+            const totalDomains = domains.length;
+            const categorisedDomains = domains.filter(d => d.category).length;
+            const uncategorisedDomains = totalDomains - categorisedDomains;
+            
+            document.getElementById('totalCount').textContent = uncategorisedDomains.toLocaleString();
+            document.getElementById('categorisedCount').textContent = categorisedDomains.toLocaleString();
+            
+            const grandTotalEl = document.getElementById('grandTotal');
+            if (grandTotalEl) {
+                grandTotalEl.textContent = totalDomains.toLocaleString();
+            }
+        }
+
+        function buildCSVContent() {
+            if (domains[0].isNewFormat) {
+                let content = domains[0].headers && domains[0].headers.length > 0 ? domains[0].headers.join(',') + '\n' : '';
+                content += domains.map(d => {
+                    const row = [d.name, d.category || UNCAT];
+                    if (d.additionalColumns && d.additionalColumns.length > 0) {
+                        return row.concat(d.additionalColumns).join(',');
+                    }
+                    return row.join(',');
+                }).join('\n');
+                return content;
+            }
+            return domains.map(d => d.category ? `"${d.name}","${d.category}"` : `"${d.name}"`).join('\n');
+        }
+
+        function exportCSV() {
+            if (domains.length === 0) {
+                alert('NO DOMAINS TO EXPORT');
+                return;
+            }
+
+            const csvContent = buildCSVContent();
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'categorised_domains.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function copyToClipboard() {
+            if (domains.length === 0) {
+                alert('NO DOMAINS TO COPY');
+                return;
+            }
+
+            const csvContent = buildCSVContent();
+            navigator.clipboard.writeText(csvContent).then(() => {
+                alert('CSV DATA COPIED TO CLIPBOARD');
+            }).catch(err => {
+                const textarea = document.createElement('textarea');
+                textarea.value = csvContent;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('CSV DATA COPIED TO CLIPBOARD');
+            });
+        }
+
+        function clearAll() {
+            if (confirm('ARE YOU SURE YOU WANT TO CLEAR ALL DATA?')) {
+                domains = [];
+                filteredDomains = [];
+                selectedDomains.clear();
+                currentPage = 0;
+                isLoadingMore = false;
+                updateStats();
+                updateCategoryFilter();
+                updateTLDFilter();
+                document.getElementById('categoryFilter').value = '';
+                document.getElementById('tldFilter').value = '';
+                document.getElementById('domainListContent').innerHTML = '<div class="empty-state">NO DOMAINS LOADED<br>IMPORT CSV TO BEGIN</div>';
+                document.getElementById('paginationInfo').textContent = '';
+                
+                const scrollContainer = document.getElementById('domainListContainer');
+                if (scrollContainer) {
+                    scrollContainer.scrollTop = 0;
+                }
+            }
+        }
+
+        // Initialize on load
+        initializeCategories();
+        if (showAll) {
+            document.getElementById('categoryFilter').classList.add('show');
+            document.getElementById('tldFilter').classList.add('show');
+        }
+    </script>
+</body>
+</html>
